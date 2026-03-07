@@ -1,4 +1,6 @@
 package gitlet;
 
-public class Blob {
+import java.io.Serializable;
+
+public class Blob implements Serializable {
 }

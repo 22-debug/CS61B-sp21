@@ -6,21 +6,42 @@ package gitlet;
 public class Main {
 
     /** Usage: java gitlet.Main ARGS, where ARGS contains
-     *  <COMMAND> <OPERAND1> <OPERAND2> ... 
+     *  <COMMAND> <OPERAND1> <OPERAND2> ...
+     *
+     *  If a user inputs a command with the wrong number or format of operands,
+     *  print the message "Incorrect operands." and exit.
+     *
+     *  If a user inputs a command that requires being in an initialized Gitlet
+     *  working directory (i.e., one containing a .gitlet subdirectory), but is not
+     *  in such a directory, print the message "Not in an initialized Gitlet directory."
      */
     public static void main(String[] args) {
         if (args.length == 0) {
-
+            Utils.exitWithError("Please enter a command.");
         }
+
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
+                validateNumArgs(args, 0);
+                Repository.init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
                 break;
-            // TODO: FILL THE REST IN
+            default:
+                Utils.exitWithError("No command with that name exists.");
+                break;
+        }
+    }
+
+    /**
+     * 验证参数数量
+     * @param args 所有参数
+     * @param n 期望参数数量（不包含命令本身）
+     */
+    private static void validateNumArgs(String[] args, int n) {
+        if (args.length != n + 1) {
+            Utils.exitWithError("Incorrect operands.");
         }
     }
 }

@@ -3,17 +3,14 @@ package gitlet;
 import java.io.File;
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
 
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ *  @author Joy
  */
 public class Repository {
     /**
-     * TODO: add instance variables here.
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
@@ -24,6 +21,42 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
+    public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
+    public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
 
-    /* TODO: fill in the rest of this class. */
+
+
+    /**
+     * init
+     * 创建文件结构：
+     * .gitlet/
+     *    |---blobs/
+     *    |---commits/
+     *    |---branchs  在Branch类中实现
+     *    |---stage    在Stage类中实现
+     *    |---HEAD      在HEAD中实现
+     *
+     * 初始commit
+     * HEAD & branch初始化
+     */
+    public static void init() {
+        if (GITLET_DIR.exists()) {
+            Utils.exitWithError("A Gitlet version-control system already exists in the current directory.");
+        }
+        GITLET_DIR.mkdir();
+
+        if (!BLOBS_DIR.exists()) {
+            BLOBS_DIR.mkdir();
+        }
+        if (!COMMITS_DIR.exists()) {
+            COMMITS_DIR.mkdir();
+        }
+
+        HEAD head = new HEAD();
+        Branch branch = new Branch();
+        Stage stage = new Stage();
+        Commit initcommit = new Commit();
+        branch.put(head.getCurBranch(), initcommit.getID());
+        initcommit.save();
+    }
 }
