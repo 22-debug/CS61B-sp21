@@ -155,4 +155,9 @@ public class Commit implements Serializable {
     public boolean hasMerged() {
         return secondParent != null;
     }
+
+    //获取提交信息
+    public String getMessage() {
+        return message;
+    }
 }

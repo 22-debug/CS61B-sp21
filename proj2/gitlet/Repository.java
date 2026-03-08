@@ -117,4 +117,25 @@ public class Repository {
             }
         }
     }
+
+    /**
+     * find
+     * @param message Prints out the ids of all commits
+     *                that have the given commit message
+     */
+    public static void find(String message) {
+        List<String> commitHistory = Utils.plainFilenamesIn(Commit.COMMIT_DIR);
+        boolean flag = false;
+        if (commitHistory != null) {
+            for (String commitID : commitHistory) {
+                if (Commit.getCommitByID(commitID).getMessage().equals(message)) {
+                    flag = true;
+                    System.out.println(commitID);
+                }
+            }
+        }
+        if (!flag) {
+            exitWithError("Found no commit with that message.");
+        }
+    }
 }
