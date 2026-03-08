@@ -82,4 +82,12 @@ public class Repository {
         Stage.getStage().clear();
         Branch.getBranches().put(HEAD.getHead().getCurBranch(), commit.getID());
     }
+
+    /**
+     * rm
+     * @param filename file to be removed
+     */
+    public static void rm(String filename) {
+        Stage.getStage().rm(filename);
+    }
 }

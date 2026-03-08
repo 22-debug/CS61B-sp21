@@ -39,6 +39,11 @@ public class Main {
                 }
                 Repository.commit((args[1]));
                 break;
+            case "rm":
+                isInitialized();
+                validateNumArgs(args, 1);
+                Repository.rm(args[1]);
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
                 break;

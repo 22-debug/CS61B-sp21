@@ -84,4 +84,23 @@ public class Stage implements Serializable {
     public TreeMap<String, String> getStagedFiles() {
         return stagedFiles;
     }
+
+    //实现rm命令
+    public void rm(String filename) {
+        File curFile = Utils.join(Repository.CWD, filename);
+        Commit headCommit = Branch.getHeadCommit();
+        if (stagedFiles.containsKey(filename)) {
+            //处于暂存状态则取消该状态
+            stagedFiles.remove(filename);
+        } else if (headCommit.hasFile(filename)) {
+            //如果该文件被当前提交追踪，则加入removeFile中，并删除该文件
+            removedFiles.add(filename);
+            if (curFile.exists()) {
+                curFile.delete();
+            }
+        } else {
+            Utils.exitWithError("No reason to remove the file.");
+        }
+        save();
+    }
 }
