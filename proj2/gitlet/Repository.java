@@ -67,4 +67,19 @@ public class Repository {
     public static void add(String filename) {
         Stage.getStage().add(filename);
     }
+
+    /**
+     * commit
+     * @param message 提交信息
+     * 保存父提交
+     * 创建新提交并保存
+     * 清空Stage
+     * 更改HEAD
+     */
+    public static void commit(String message) {
+        String parentCommitID = Branch.getHeadCommitID();
+        Commit commit = new Commit(message, parentCommitID);
+        Stage.getStage().clear();
+        Branch.getBranches().put(HEAD.getHead().getCurBranch(), commit.getID());
+    }
 }

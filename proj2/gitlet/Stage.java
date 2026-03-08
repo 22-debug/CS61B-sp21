@@ -7,6 +7,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class Stage implements Serializable {
+    /**
+     * 暂存区只有一个文件，每次更改后都需要保存
+     */
     //文件名-->blob ID
     private TreeMap<String, String> stagedFiles;
     private TreeSet<String> removedFiles;
@@ -57,5 +60,28 @@ public class Stage implements Serializable {
         //add说明不会被rm
         removedFiles.remove(filename);
         save();
+    }
+
+    //判断暂存区是否为空
+    public boolean isEmpty() {
+        return stagedFiles.isEmpty() && removedFiles.isEmpty();
+    }
+
+    //清空暂存区
+    public void clear() {
+        stagedFiles.clear();
+        removedFiles.clear();
+        //需要保存
+        save();
+    }
+
+    //判断是否在待删除区
+    public boolean isInRemove(String filename) {
+        return removedFiles.contains(filename);
+    }
+
+    //获取暂存区文件
+    public TreeMap<String, String> getStagedFiles() {
+        return stagedFiles;
     }
 }

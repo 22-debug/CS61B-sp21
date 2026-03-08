@@ -25,17 +25,10 @@ public class Commit implements Serializable {
     private final String parent;
     private final String secondParent;
     private final Date timestamp;
-    //文件名-->hashcode ID
+    //文件名-->hashcode ID(包含文件名和文件内容)
     private final TreeMap<String, String> blobs;
     public static final File COMMIT_DIR = Repository.COMMITS_DIR;
 
-    /*
-    public Commit(String message, String parent) {
-        this.message = message;
-        this.parent = parent;
-        this.timestamp = timestamp;
-    }
-    */
     //初始提交
     public Commit() {
         this.message = "initial commit";
@@ -43,6 +36,40 @@ public class Commit implements Serializable {
         this.secondParent = null;
         this.blobs = null;
         this.timestamp = new Date(0); //"00:00:00 UTC, Thursday, 1 January 1970"
+    }
+
+    //根据Stage内容创建新Commit
+    public Commit(String mes, String par) {
+        this.message = mes;
+        this.parent = par;
+        secondParent = null;
+        blobs = new TreeMap<>();
+        Commit parCommit = getCommitByID(par);
+        Stage stage = Stage.getStage();
+        if (stage.isEmpty()) {
+            Utils.exitWithError("No changes added to the commit.");
+        }
+
+        //复制父提交的blobs
+        for (Map.Entry<String, String> entry : parCommit.getBlobs().entrySet()) {
+            String filename = entry.getKey();
+            String blobID = entry.getValue();
+            if (!stage.isInRemove(filename)) {
+                blobs.put(filename, blobID);
+            }
+        }
+
+        //推入暂存区的Blob
+        for (Map.Entry<String, String> entry : stage.getStagedFiles().entrySet()) {
+            String filename = entry.getKey();
+            String blobID = entry.getValue();
+            //添加或替换
+            blobs.put(filename, blobID);
+        }
+        //当前时间
+        timestamp = new Date();
+        //保存
+        save();
     }
 
     //持久化
@@ -90,5 +117,10 @@ public class Commit implements Serializable {
             return null;
         }
         return blobs.get(filename);
+    }
+
+    //获取blobs
+    public Map<String, String> getBlobs() {
+        return blobs;
     }
 }

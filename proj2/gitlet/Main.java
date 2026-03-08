@@ -31,6 +31,14 @@ public class Main {
                 validateNumArgs(args, 1);
                 Repository.add(args[1]);
                 break;
+            case "commit":
+                isInitialized();
+                if (args.length != 2 || args[1].trim().isEmpty()) {
+                    //.trim()移除空白字符
+                    Utils.exitWithError("Please enter a commit message.");
+                }
+                Repository.commit((args[1]));
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
                 break;
