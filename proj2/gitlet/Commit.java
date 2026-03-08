@@ -35,7 +35,9 @@ public class Commit implements Serializable {
         this.message = "initial commit";
         this.parent = null;
         this.secondParent = null;
-        this.blobs = null;
+        //this.blobs = null;
+        //创建实例，否则无法调用getID
+        this.blobs = new TreeMap<>();
         this.timestamp = new Date(0); //"00:00:00 UTC, Thursday, 1 January 1970"
     }
 
