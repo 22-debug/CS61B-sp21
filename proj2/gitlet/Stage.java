@@ -17,6 +17,7 @@ public class Stage implements Serializable {
 
     public Stage() {
         stagedFiles = new TreeMap<>();
+        removedFiles = new TreeSet<>();
         if (!STAGE_DIR.exists()) {
             try {
                 STAGE_DIR.createNewFile();
