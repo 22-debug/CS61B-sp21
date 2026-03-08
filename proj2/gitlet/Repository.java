@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import static gitlet.Utils.*;
+import java.util.List;
 
 
 /** Represents a gitlet repository.
@@ -102,6 +103,18 @@ public class Repository {
                 break;
             }
             curCommit = curCommit.getFirstParentCommit();
+        }
+    }
+
+    /**
+     * global_log
+     */
+    public static void globalLog() {
+        List<String> commitHistory = Utils.plainFilenamesIn(Commit.COMMIT_DIR);
+        if (commitHistory != null) {
+            for (String commitID : commitHistory) {
+                Commit.getCommitByID(commitID).printLog();
+            }
         }
     }
 }
