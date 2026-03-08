@@ -48,6 +48,7 @@ public class Main {
         }
     }
 
+    //判断是否初始化
     private static void isInitialized() {
         if (!Repository.GITLET_DIR.exists()) {
             Utils.exitWithError("Not in an initialized Gitlet directory.");

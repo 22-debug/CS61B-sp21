@@ -27,10 +27,12 @@ public class Stage implements Serializable {
         Utils.writeObject(STAGE_DIR, this);
     }
 
+    //从文件中获取Stage类
     public static Stage getStage() {
         return Utils.readObject(STAGE_DIR, Stage.class);
     }
 
+    //实现add命令
     public void add(String filename) {
         //查看是否存在这个文件
         File curFile = Utils.join(Repository.CWD, filename);

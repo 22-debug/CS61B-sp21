@@ -60,6 +60,10 @@ public class Repository {
         initcommit.save();
     }
 
+    /**
+     * add
+     * @param filename 添加文件的文件名
+     */
     public static void add(String filename) {
         Stage.getStage().add(filename);
     }
