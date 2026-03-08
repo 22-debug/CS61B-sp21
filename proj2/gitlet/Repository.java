@@ -59,4 +59,8 @@ public class Repository {
         branch.put(head.getCurBranch(), initcommit.getID());
         initcommit.save();
     }
+
+    public static void add(String filename) {
+        Stage.getStage().add(filename);
+    }
 }

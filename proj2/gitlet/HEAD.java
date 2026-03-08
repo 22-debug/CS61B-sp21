@@ -20,11 +20,18 @@ public class HEAD implements Serializable {
         save();
     }
 
+    //持久化
     private void save() {
         Utils.writeObject(HEAD_PATH, this);
     }
 
+    //获取当前分支
     public String getCurBranch() {
         return this.curBranch;
+    }
+
+    //从文件中读取HEAD类
+    public static HEAD getHead() {
+        return Utils.readObject(HEAD_PATH, HEAD.class);
     }
 }

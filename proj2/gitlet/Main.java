@@ -27,6 +27,9 @@ public class Main {
                 Repository.init();
                 break;
             case "add":
+                isInitialized();
+                validateNumArgs(args, 1);
+                Repository.add(args[1]);
                 break;
             default:
                 Utils.exitWithError("No command with that name exists.");
@@ -42,6 +45,12 @@ public class Main {
     private static void validateNumArgs(String[] args, int n) {
         if (args.length != n + 1) {
             Utils.exitWithError("Incorrect operands.");
+        }
+    }
+
+    private static void isInitialized() {
+        if (!Repository.GITLET_DIR.exists()) {
+            Utils.exitWithError("Not in an initialized Gitlet directory.");
         }
     }
 }
