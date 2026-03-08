@@ -44,6 +44,11 @@ public class Main {
                 validateNumArgs(args, 1);
                 Repository.rm(args[1]);
                 break;
+            case "log":
+                isInitialized();
+                validateNumArgs(args, 0);
+                Repository.log();
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
                 break;

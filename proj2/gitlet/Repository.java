@@ -90,4 +90,18 @@ public class Repository {
     public static void rm(String filename) {
         Stage.getStage().rm(filename);
     }
+
+    /**
+     * log
+     */
+    public static void log() {
+        Commit curCommit = Branch.getHeadCommit();
+        while(true) {
+            curCommit.printLog();
+            if (!curCommit.hasParent()) {
+                break;
+            }
+            curCommit = curCommit.getFirstParentCommit();
+        }
+    }
 }
