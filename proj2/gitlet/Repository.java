@@ -31,6 +31,7 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
+    public static final int SHA1_LEN = 40;
 
 
 
@@ -188,8 +189,8 @@ public class Repository {
         }
     }
 
-    /* checkout help methods begin */
 
+    /* checkout help methods begin */
     /**
      * checkout [branch name]
      * @param branch the name of the target branch
@@ -216,20 +217,38 @@ public class Repository {
     }
 
     /**
-     * TODO
      * checkout -- [filename]
-     * @param filename
+     * @param filename Takes the version of the file as it exists in the head commit
+     *                 and puts it in the working directory,
+     *                 overwriting the version of the file that’s already there if there is one.
      */
     private static void checkoutLatestFile(String filename) {
+        File cueFile = Utils.join(CWD, filename);
+        Commit headCommit = Branch.getHeadCommit();
+        if (!headCommit.hasFile(filename)) {
+            Utils.exitWithError("File does not exist in that commit.");
+        }
+        byte[] content = Blob.getBlobByID(headCommit.getBlobID(filename)).getContent();
+        overwriteFile(cueFile, content);
     }
 
     /**
-     * TODO
      * checkout [commit id] -- [filename]
-     * @param commitID
-     * @param filename
+     * @param commitID the given id
+     * @param filename Takes the version of the file as it exists in the commit with the given id,
+     *      *                 and puts it in the working directory,
+     *      *                 overwriting the version of the file that’s already there if there is one.
      */
     private static void checkoutCommitID(String commitID, String filename) {
+        //前缀转换为提交ID
+        String targetID = Commit.convertPrefixToCommitID(commitID);
+        Commit target = Commit.getCommitByID(targetID);
+        if (!target.hasFile(filename)) {
+            Utils.exitWithError("File does not exist in that commit.");
+        }
+        File file = Utils.join(CWD, filename);
+        byte[] content = Blob.getBlobByID(target.getBlobID(filename)).getContent();
+        overwriteFile(file, content);
     }
 
     //cover the working directory to the stage of the target commit
@@ -250,7 +269,6 @@ public class Repository {
         for (Map.Entry<String, String> entry : targetBlobs.entrySet()) {
             String filename = entry.getKey();
             String targetBlobID = entry.getValue();
-            String headBlobID = headBlobs.get(filename);
             //文件不同时写入
             //if (!targetBlobID.equals(headBlobID)) {
             //    byte[] content = Blob.getBlobByID(targetBlobID).getContent();

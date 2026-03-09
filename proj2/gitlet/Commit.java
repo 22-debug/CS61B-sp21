@@ -3,10 +3,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Date; // You'll likely use this in this class
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /** Represents a gitlet commit object.
  *  does at a high level.
@@ -79,6 +76,36 @@ public class Commit implements Serializable {
         timestamp = new Date();
         //保存
         save();
+    }
+
+    //get commit ID by its prefix
+    public static String convertPrefixToCommitID(String prefix) {
+        if (prefix.length() > Repository.SHA1_LEN) {
+            Utils.exitWithError("No commit with that id exists.");
+        } else if (prefix.length() == Repository.SHA1_LEN) {
+            if (!Utils.join(COMMIT_DIR, prefix).exists()) {
+                Utils.exitWithError("No commit with that id exists.");
+            }
+            return prefix;
+        }
+        List<String> historyCommits = Utils.plainFilenamesIn(COMMIT_DIR);
+        String exactID = new String();
+        boolean flag = false;;
+        if (historyCommits != null) {
+            for (String commitID : historyCommits) {
+                if (commitID.startsWith(prefix)) {
+                    if (flag) {
+                        Utils.exitWithError("Ambiguous prefix.");
+                    }
+                    exactID = commitID;
+                    flag = true;
+                }
+            }
+        }
+        if (!flag) {
+            Utils.exitWithError("No commit with that id exists.");
+        }
+        return exactID;
     }
 
     //持久化
