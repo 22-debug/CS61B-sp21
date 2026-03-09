@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class Branch implements Serializable {
@@ -44,5 +45,20 @@ public class Branch implements Serializable {
     //从文件读取Branch类
     public static Branch getBranches() {
         return Utils.readObject(BRANCH_DIR, Branch.class);
+    }
+
+    //打印分支
+    public void printBranches() {
+        System.out.println("=== Branches ===");
+        for (Map.Entry<String, String> entry : this.branches.entrySet()) {
+            //TreeMap的遍历顺序是字典序
+            String branchName = entry.getKey();
+            //当前分支加*
+            if (branchName.equals(HEAD.getHead().getCurBranch())) {
+                System.out.println("*");
+            }
+            System.out.println(branchName);
+        }
+        System.out.println();
     }
 }

@@ -104,4 +104,28 @@ public class Stage implements Serializable {
         }
         save();
     }
+
+    //打印Stage
+    public void printStage() {
+        //stagedFiles
+        printStagedFiles();
+        //removedFiles
+        printRemovedFiles();
+    }
+    //打印stagedFiles
+    private void printStagedFiles() {
+        System.out.println("=== Staged Files ===");
+        for (String filename : stagedFiles.keySet()) {
+            System.out.println(filename);
+        }
+        System.out.println();
+    }
+    //打印removedFiles
+    private void printRemovedFiles() {
+        System.out.println("=== Removed Files ===");
+        for (String filename : removedFiles) {
+            System.out.println(filename);
+        }
+        System.out.println();
+    }
 }

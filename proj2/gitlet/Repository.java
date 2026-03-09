@@ -138,4 +138,21 @@ public class Repository {
             exitWithError("Found no commit with that message.");
         }
     }
+
+    /**
+     *status
+     */
+    public static void status() {
+        //显示当前分支
+        Branch.getBranches().printBranches();
+        //显示暂存或删除的文件
+        Stage.getStage().printStage();
+        //选做内容
+        //Modifications Not Staged For Commit
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+        //Untracked Files
+        System.out.println("=== Untracked Files ===");
+        System.out.println();
+    }
 }
