@@ -55,7 +55,7 @@ public class Branch implements Serializable {
             String branchName = entry.getKey();
             //当前分支加*
             if (branchName.equals(HEAD.getHead().getCurBranch())) {
-                System.out.println("*");
+                System.out.print("*");
             }
             System.out.println(branchName);
         }
