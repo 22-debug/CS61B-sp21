@@ -1,8 +1,15 @@
 package gitlet;
 
+import edu.princeton.cs.introcs.StdRandom;
+
 import java.io.File;
 import static gitlet.Utils.*;
+
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 
 /** Represents a gitlet repository.
@@ -155,4 +162,141 @@ public class Repository {
         System.out.println("=== Untracked Files ===");
         System.out.println();
     }
+
+    /**
+     * checkout
+     * @param args command
+     */
+    public static void checkout(String[] args) {
+        if (args.length == 2) {
+            //checkout [branch name]
+            checkoutBranchName(args[1]);
+        } else if (args.length == 3) {
+            //checkout -- [filename]
+            if (!args[1].equals("--")) {
+                Utils.exitWithError("Incorrect operands.");
+            }
+            checkoutLatestFile(args[2]);
+        } else if (args.length == 4) {
+            //checkout [commit id] -- [filename]
+            if (!args[2].equals("--")) {
+                Utils.exitWithError("Incorrect operands.");
+            }
+            checkoutCommitID(args[1], args[3]);
+        } else {
+            Utils.exitWithError("Incorrect operands.");
+        }
+    }
+
+    /* checkout help methods begin */
+
+    /**
+     * checkout [branch name]
+     * @param branch the name of the target branch
+     */
+    private static void checkoutBranchName(String branch) {
+        //分支不存在
+        if (!Branch.getBranches().containsBranch(branch)) {
+            Utils.exitWithError("No such branch exists.");
+        }
+        //分支是当前分支
+        if (branch.equals(HEAD.getHead().getCurBranch())) {
+            Utils.exitWithError("No need to checkout the current branch.");
+        }
+        //the nearest commit in the target commit
+        Commit target = Branch.getBranches().getCommit(branch);
+        //the current commit
+        Commit head = Branch.getHeadCommit();
+        //cover the working directory
+        replaceCommit(target, head);
+        //change the branch
+        HEAD.getHead().changeCurBranch(branch);
+        //clear the stage
+        Stage.getStage().clear();
+    }
+
+    /**
+     * TODO
+     * checkout -- [filename]
+     * @param filename
+     */
+    private static void checkoutLatestFile(String filename) {
+    }
+
+    /**
+     * TODO
+     * checkout [commit id] -- [filename]
+     * @param commitID
+     * @param filename
+     */
+    private static void checkoutCommitID(String commitID, String filename) {
+    }
+
+    //cover the working directory to the stage of the target commit
+    private static void replaceCommit(Commit target, Commit head) {
+        checkUntracked(target, head);
+        Map<String, String> targetBlobs = target.getBlobs();
+        Map<String, String> headBlobs = head.getBlobs();
+        //增量更新 不建议直接删除再全部写入
+        //删除需要删除的
+        for (Map.Entry<String, String> entry : headBlobs.entrySet()) {
+            String filename = entry.getKey();
+            if (!target.hasFile(filename)) {
+                File file = Utils.join(CWD, filename);
+                Utils.restrictedDelete(file);
+            }
+        }
+        //覆盖需要覆盖的
+        for (Map.Entry<String, String> entry : targetBlobs.entrySet()) {
+            String filename = entry.getKey();
+            String targetBlobID = entry.getValue();
+            String headBlobID = headBlobs.get(filename);
+            //文件不同时写入
+            //if (!targetBlobID.equals(headBlobID)) {
+            //    byte[] content = Blob.getBlobByID(targetBlobID).getContent();
+            //    Utils.writeContents(Utils.join(CWD, filename), content);
+            //}
+            //未考虑当前不存在目标文件的情况
+            byte[] content = Blob.getBlobByID(targetBlobID).getContent();
+            overwriteFile(Utils.join(CWD, filename), content);
+        }
+    }
+
+    //覆盖或创建文件
+    private static void overwriteFile(File file, byte[] content) {
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            Utils.writeContents(file, content);
+        } catch (IOException e) {
+            Utils.exitWithError(e.toString());
+        }
+    }
+
+    //check if there is a working file is untracked in the current branch
+    //but would be overwritten by the checkout.
+    //thanks to deepseek
+    private static void checkUntracked(Commit target, Commit current) {
+        List<String> workingFiles = Utils.plainFilenamesIn(CWD);
+        if (workingFiles == null) {
+            return;
+        }
+
+        // 获取 target 要操作的所有文件
+        Set<String> targetFiles = target.getBlobs().keySet();
+
+        for (String filename : workingFiles) {
+            boolean inCurrent = current.hasFile(filename);
+            boolean inTarget = targetFiles.contains(filename);
+
+            // 如果是 untracked 文件（不在 current 中）
+            // 并且会被 target 操作（创建或覆盖）
+            if (!inCurrent && inTarget) {
+                Utils.exitWithError("There is an untracked file in the way; "
+                        + "delete it, or add and commit it first.");
+            }
+        }
+    }
+    /* checkout help methods end */
 }

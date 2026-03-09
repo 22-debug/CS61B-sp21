@@ -64,6 +64,10 @@ public class Main {
                 validateNumArgs(args, 0);
                 Repository.status();
                 break;
+            case "checkout":
+                isInitialized();
+                Repository.checkout(args);
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
                 break;

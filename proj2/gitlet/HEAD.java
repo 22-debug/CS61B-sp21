@@ -34,4 +34,10 @@ public class HEAD implements Serializable {
     public static HEAD getHead() {
         return Utils.readObject(HEAD_PATH, HEAD.class);
     }
+
+    //change the current branch to the target one
+    public void changeCurBranch(String branch) {
+        curBranch = branch;
+        save();
+    }
 }

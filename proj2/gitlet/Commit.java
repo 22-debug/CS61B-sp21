@@ -15,7 +15,6 @@ import java.util.TreeMap;
  */
 public class Commit implements Serializable {
     /**
-     *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided one example for `message`.
@@ -23,10 +22,17 @@ public class Commit implements Serializable {
 
     /** The message of this Commit. */
     private final String message;
+
+    // represents the parent commits as pointers to other commit objects,
+    // then writing the head of a branch will write all the commits (and blobs)
+    // in the entire subgraph of commits into one file, which is generally not what you want.
+    // To avoid this, don’t use Java pointers to refer to commits and blobs in your runtime objects,
+    // but instead use SHA-1 hash strings.
     private final String parent;
     private final String secondParent;
+
     private final Date timestamp;
-    //文件名-->hashcode ID(包含文件名和文件内容)
+    //文件名-->blobID(包含文件名和文件内容)
     private final TreeMap<String, String> blobs;
     public static final File COMMIT_DIR = Repository.COMMITS_DIR;
 

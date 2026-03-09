@@ -61,4 +61,18 @@ public class Branch implements Serializable {
         }
         System.out.println();
     }
+
+    //return whether branches has a branch named 'branch'
+    public boolean containsBranch(String branch) {
+        return branches.containsKey(branch);
+    }
+
+    //return the latest commit in the branch
+    public Commit getCommit(String branch) {
+        return Commit.getCommitByID(getCommitID(branch));
+    }
+    //return the ID of the latest commit in the branch
+    private String getCommitID(String branch) {
+        return branches.get(branch);
+    }
 }
