@@ -21,7 +21,7 @@ public class Main {
         }
 
         String firstArg = args[0];
-        switch(firstArg) {
+        switch (firstArg) {
             case "init":
                 validateNumArgs(args, 0);
                 Repository.init();
@@ -76,7 +76,7 @@ public class Main {
             case "rm-branch":
                 isInitialized();
                 validateNumArgs(args, 1);
-                Repository.rm_branch(args[1]);
+                Repository.rmBranch(args[1]);
                 break;
             case "reset":
                 isInitialized();

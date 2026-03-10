@@ -90,7 +90,7 @@ public class Commit implements Serializable {
         }
         List<String> historyCommits = Utils.plainFilenamesIn(COMMIT_DIR);
         String exactID = new String();
-        boolean flag = false;;
+        boolean flag = false;
         if (historyCommits != null) {
             for (String commitID : historyCommits) {
                 if (commitID.startsWith(prefix)) {
@@ -180,8 +180,9 @@ public class Commit implements Serializable {
         System.out.println("===");
         System.out.println("commit " + commitID);
         if (hasMerged()) {
-            System.out.println("Merge: " +
-                    parent.substring(0, 7) + " "
+            System.out.println("Merge: "
+                    + parent.substring(0, 7)
+                    + " "
                     + secondParent.substring(0, 7));
         }
         System.out.println("Date: " + String.format(Locale.ENGLISH,

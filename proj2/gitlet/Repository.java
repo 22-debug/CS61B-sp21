@@ -1,7 +1,5 @@
 package gitlet;
 
-import edu.princeton.cs.introcs.StdRandom;
-
 import java.io.File;
 import static gitlet.Utils.*;
 
@@ -9,7 +7,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 
 /** Represents a gitlet repository.
@@ -105,7 +102,7 @@ public class Repository {
      */
     public static void log() {
         Commit curCommit = Branch.getHeadCommit();
-        while(true) {
+        while (true) {
             curCommit.printLog();
             if (!curCommit.hasParent()) {
                 break;
@@ -333,7 +330,7 @@ public class Repository {
      * rm-branch
      * @param branch the name of the branch to be removed
      */
-    public static void rm_branch(String branch) {
+    public static void rmBranch(String branch) {
         if (!Branch.getBranches().containsBranch(branch)) {
             Utils.exitWithError("A branch with that name does not exist.");
         } else if (branch.equals(HEAD.getHead().getCurBranch())) {

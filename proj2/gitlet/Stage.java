@@ -50,8 +50,8 @@ public class Stage implements Serializable {
 
         //文件在headCommit中存在且内容一致，则不暂存
         //提交后更改文件，add后又改回去
-        if (headCommit.hasFile(filename) &&
-                headCommit.getBlobID(filename).equals(curBlobID)) {
+        if (headCommit.hasFile(filename)
+                && headCommit.getBlobID(filename).equals(curBlobID)) {
             stagedFiles.remove(filename);
             //即防止重复提交
             //文件不存在则返回false

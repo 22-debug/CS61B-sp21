@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.net.ContentHandler;
 
 public class Blob implements Serializable {
     public static final File BLOBS_DIR = Repository.BLOBS_DIR;
