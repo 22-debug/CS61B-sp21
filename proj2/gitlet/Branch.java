@@ -75,4 +75,10 @@ public class Branch implements Serializable {
     private String getCommitID(String branch) {
         return branches.get(branch);
     }
+
+    //remove the branch
+    public void remove(String branch) {
+        branches.remove(branch);
+        save();
+    }
 }

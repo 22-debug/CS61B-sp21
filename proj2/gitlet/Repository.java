@@ -318,10 +318,27 @@ public class Repository {
     }
     /* checkout help methods end */
 
+    /**
+     * branch
+     * @param branch the name of the branch to be created
+     */
     public static void branch(String branch) {
         if (Branch.getBranches().containsBranch(branch)) {
             Utils.exitWithError("A branch with that name already exists.");
         }
         Branch.getBranches().put(branch, Branch.getHeadCommitID());
+    }
+
+    /**
+     * rm-branch
+     * @param branch the name of the branch to be removed
+     */
+    public static void rm_branch(String branch) {
+        if (!Branch.getBranches().containsBranch(branch)) {
+            Utils.exitWithError("A branch with that name does not exist.");
+        } else if (branch.equals(HEAD.getHead().getCurBranch())) {
+            Utils.exitWithError("Cannot remove the current branch.");
+        }
+        Branch.getBranches().remove(branch);
     }
 }
