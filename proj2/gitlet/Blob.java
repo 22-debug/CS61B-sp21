@@ -18,8 +18,8 @@ public class Blob implements Serializable {
     }
 
     //get the blob by its ID
-    public static Blob getBlobByID(String ID) {
-        return Utils.readObject(Utils.join(BLOBS_DIR, ID), Blob.class);
+    public static Blob getBlobByID(String id) {
+        return Utils.readObject(Utils.join(BLOBS_DIR, id), Blob.class);
     }
 
     //保存

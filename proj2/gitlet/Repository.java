@@ -47,7 +47,8 @@ public class Repository {
      */
     public static void init() {
         if (GITLET_DIR.exists()) {
-            Utils.exitWithError("A Gitlet version-control system already exists in the current directory.");
+            Utils.exitWithError(
+                    "A Gitlet version-control system already exists in the current directory.");
         }
         GITLET_DIR.mkdir();
 
@@ -233,8 +234,9 @@ public class Repository {
      * checkout [commit id] -- [filename]
      * @param commitID the given id
      * @param filename Takes the version of the file as it exists in the commit with the given id,
-     *      *                 and puts it in the working directory,
-     *      *                 overwriting the version of the file that’s already there if there is one.
+     *                 and puts it in the working directory,
+     *                 overwriting the version of the file that’s already
+     *                 there if there is one.
      */
     private static void checkoutCommitID(String commitID, String filename) {
         //前缀转换为提交ID
