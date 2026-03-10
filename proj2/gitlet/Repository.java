@@ -317,4 +317,11 @@ public class Repository {
         }
     }
     /* checkout help methods end */
+
+    public static void branch(String branch) {
+        if (Branch.getBranches().containsBranch(branch)) {
+            Utils.exitWithError("A branch with that name already exists.");
+        }
+        Branch.getBranches().put(branch, Branch.getHeadCommitID());
+    }
 }
