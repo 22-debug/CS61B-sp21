@@ -78,6 +78,11 @@ public class Main {
                 validateNumArgs(args, 1);
                 Repository.rm_branch(args[1]);
                 break;
+            case "reset":
+                isInitialized();
+                validateNumArgs(args, 1);
+                Repository.reset(args[1]);
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
                 break;

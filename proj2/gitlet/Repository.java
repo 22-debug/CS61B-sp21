@@ -341,4 +341,17 @@ public class Repository {
         }
         Branch.getBranches().remove(branch);
     }
+
+    /**
+     * reset
+     * @param commit the id of the target commit
+     */
+    public static void reset(String commit) {
+        String targetID = Commit.convertPrefixToCommitID(commit);
+        Commit target = Commit.getCommitByID(targetID);
+        Commit headCommit = Branch.getHeadCommit();
+        replaceCommit(target, headCommit);
+        Branch.getBranches().put(HEAD.getHead().getCurBranch(), targetID);
+        Stage.getStage().clear();
+    }
 }
