@@ -72,7 +72,7 @@ public class Branch implements Serializable {
         return Commit.getCommitByID(getCommitID(branch));
     }
     //return the ID of the latest commit in the branch
-    private String getCommitID(String branch) {
+    public String getCommitID(String branch) {
         return branches.get(branch);
     }
 

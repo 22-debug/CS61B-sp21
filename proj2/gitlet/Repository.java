@@ -87,7 +87,7 @@ public class Repository {
      */
     public static void commit(String message) {
         String parentCommitID = Branch.getHeadCommitID();
-        Commit commit = new Commit(message, parentCommitID);
+        Commit commit = new Commit(message, parentCommitID, null);
         Stage.getStage().clear();
         Branch.getBranches().put(HEAD.getHead().getCurBranch(), commit.getID());
     }
@@ -353,5 +353,89 @@ public class Repository {
         replaceCommit(target, headCommit);
         Branch.getBranches().put(HEAD.getHead().getCurBranch(), targetID);
         Stage.getStage().clear();
+    }
+
+    /**
+     * merge
+     * @param branch merge this branch to the current one
+     *检查
+     *              检查特殊情况
+     *              • 分支不存在 -> 报错
+     *              • 合并自己 -> 报错
+     *              • 有未提交更改 -> 报错
+     *              • untracked 文件会被覆盖 -> 报错
+     *                         │
+     *                         ▼
+     *               找到 split point
+     *                         │
+     *                         ▼
+     *              判断 split point 与分支的关系
+     *              split = given branch         -> "Given branch is an ancestor..."
+     *              split = current branch       -> "Current branch fast-forwarded."
+     *              其他情况                      ->  进入真正的合并
+     *合并
+     *              对于每个文件，比较它在三个地方的状态：
+     *              split point (基础版本)
+     *              current branch (HEAD)
+     *              given branch (要合并的分支)
+     *        情况 1：只有 given 分支改了
+     *              文件在 split point → given 有变化，current 没变
+     *              → 采用 given 的版本，并自动暂存
+     *        情况 2：只有 current 分支改了
+     *              文件在 split point → current 有变化，given 没变
+     *               → 保持 current 的版本，不做改变
+     *        情况 3：两边都没改
+     *              文件在 split point → 两边都一样
+     *              → 保持不变
+     *        情况 4：两边都改了，但改得一样
+     *              文件在 split point → 两边改成了相同内容
+     *              → 保持不变
+     *        情况 5：两边都改了，但改得不一样（冲突！）
+     *               这是最复杂的情况，包括：
+     *               两边内容都改，但不同
+     *               一边改内容，一边删文件
+     *               文件在 split point 不存在，两边都加了不同内容
+     *               → 产生冲突文件
+     * 提交合并
+     *               如果没有冲突：
+     *               自动生成一个合并提交 (merge commit)
+     *               这个提交有两个父节点：
+     *               第一父节点：current branch 的 HEAD
+     *               第二父节点：given branch 的 HEAD
+     *               提交信息：Merged [given branch] into [current branch]
+     *               如果有冲突：
+     *               同样生成合并提交（Gitlet 的特殊之处）
+     *               额外打印：Encountered a merge conflict.
+     */
+    public static void merge(String branch) {
+        if (!Stage.getStage().isEmpty()) {
+            Utils.exitWithError("You have uncommitted changes.");
+        } else if (!Branch.getBranches().containsBranch(branch)) {
+            Utils.exitWithError("A branch with that name does not exist.");
+        } else if (branch.equals(HEAD.getHead().getCurBranch())) {
+            Utils.exitWithError("Cannot merge a branch with itself.");
+        }
+        Commit head = Branch.getHeadCommit();
+        Commit given = Commit.getCommitByID(Branch.getBranches().getCommitID(branch));
+        checkUntracked(given, head);
+
+        Commit split = Commit.findSplitPoint(head, given);
+        if (split.getID().equals(given.getID())) {
+            Utils.exitWithError("Given branch is an ancestor of the current branch.");
+        } else if (split.getID().equals(head.getID())) {
+            checkoutBranchName(branch);
+            Utils.exitWithError("Current branch fast-forwarded.");
+        }
+
+        boolean conflict = Commit.merge(head, given, split);
+        Commit newCommit = new Commit(
+                "Merged " + branch + " into " + HEAD.getHead().getCurBranch() + ".",
+                head.getID(), given.getID());
+        //更新HEAD，清空Stage
+        Branch.getBranches().put(HEAD.getHead().getCurBranch(), newCommit.getID());
+        Stage.getStage().clear();
+        if (conflict) {
+            Utils.exitWithError("Encountered a merge conflict.");
+        }
     }
 }

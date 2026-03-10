@@ -45,10 +45,10 @@ public class Commit implements Serializable {
     }
 
     //根据Stage内容创建新Commit
-    public Commit(String mes, String par) {
+    public Commit(String mes, String par, String secPar) {
         this.message = mes;
         this.parent = par;
-        secondParent = null;
+        secondParent = secPar;
         blobs = new TreeMap<>();
         Commit parCommit = getCommitByID(par);
         Stage stage = Stage.getStage();
@@ -169,6 +169,10 @@ public class Commit implements Serializable {
     public Commit getFirstParentCommit() {
         return getCommitByID(parent);
     }
+    //获取当前提交的第二父提交
+    public Commit getSecondParentCommit() {
+        return getCommitByID(secondParent);
+    }
 
     //输出提交的log
     public void printLog() {
@@ -194,5 +198,130 @@ public class Commit implements Serializable {
     //获取提交信息
     public String getMessage() {
         return message;
+    }
+
+    //获取提交的所有祖先
+    public Set<String> collectAllAncestors() {
+        HashSet<String> ans = new HashSet<>();
+        //This class(Deque) is likely to be faster than Stack when used as a stack
+        Queue<Commit> q = new ArrayDeque<>();
+        q.add(this);
+
+        while (!q.isEmpty()) {
+            Commit cur = q.poll();
+            if (cur == null) {
+                continue;
+            }
+            String id = cur.getID();
+            if (ans.contains(id)) {
+                continue;
+            }
+            ans.add(id);
+            if (cur.getFirstParentCommit() != null) {
+                q.add(cur.getFirstParentCommit());
+            }
+            if (cur.getSecondParentCommit() != null) {
+                q.add(cur.getSecondParentCommit());
+            }
+        }
+        return ans;
+    }
+
+    //寻找两个分支的分裂点
+    public static Commit findSplitPoint(Commit c1, Commit c2) {
+        if (c1 == null || c2 == null) {
+            return null;
+        }
+        Set<String> anc1 = c1.collectAllAncestors();
+        //从c2开始BFS
+        Queue<Commit> q = new ArrayDeque<>();
+        Set<String> vis = new HashSet<>();
+        q.add(c2);
+        while (!q.isEmpty()) {
+            Commit cur = q.poll();
+            if (cur == null) {
+                continue;
+            }
+            String id = cur.getID();
+            if (anc1.contains(id)) {
+                return cur;
+            }
+            if (vis.contains(id)) {
+                continue;
+            }
+            vis.add(id);
+            if (cur.getFirstParentCommit() != null) {
+                q.add(cur.getFirstParentCommit());
+            }
+            if (cur.getSecondParentCommit() != null) {
+                q.add(cur.getSecondParentCommit());
+            }
+        }
+        return null;
+    }
+
+    //合并提交，返回是否产生冲突
+    public static boolean merge(Commit head, Commit given, Commit split) {
+        boolean hasConflict = false;
+        //收集所有文件名
+        Set<String> filenames = new HashSet<>();
+        filenames.addAll(head.blobs.keySet());
+        filenames.addAll(given.blobs.keySet());
+        filenames.addAll(split.blobs.keySet());
+        for (String name : filenames) {
+            String H = head.getBlobID(name);
+            String G = given.getBlobID(name);
+            String S = split.getBlobID(name);
+            if (Objects.equals(H, G)) {
+                //1. 三者相同
+                //2. 做了相同修改（包括删除）
+                continue;
+            } else if (Objects.equals(H, S)) {
+                //H != G
+                //H未改变，G改变
+                if (G != null) {
+                    checkoutBlobToCWD(name, G);
+                } else {
+                    Stage.getStage().rm(name);
+                }
+            } else if (Objects.equals(G, S)) {
+                //G不变，H变
+                continue;
+            } else {
+                //冲突
+                hasConflict = true;
+                writeConflictFile(name, H, G);
+            }
+        }
+        return hasConflict;
+    }
+
+    //生成冲突文件
+    private static void writeConflictFile(String filename, String headBlobID, String givenBlobID) {
+        File file = Utils.join(Repository.CWD, filename);
+        String headContent = "";
+        String givenContent = "";
+        if (headBlobID != null) {
+            headContent = new String(Blob.getBlobByID(headBlobID).getContent());
+        }
+        if (givenBlobID != null) {
+            givenContent = new String(Blob.getBlobByID(givenBlobID).getContent());
+        }
+        String conflict =
+                "<<<<<<< HEAD\n"
+                + headContent
+                + "=======\n"
+                + givenContent
+                + ">>>>>>>\n";
+        Utils.writeContents(file, conflict);
+        Stage.getStage().add(filename);
+    }
+
+    //更新文件并加入暂存区
+    private static void checkoutBlobToCWD(String filename, String blobID) {
+        File file = Utils.join(Repository.CWD, filename);
+        byte[] content = Blob.getBlobByID(blobID).getContent();
+        Utils.writeContents(file, content);
+        Stage.getStage().add(filename);
     }
 }
