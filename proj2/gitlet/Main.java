@@ -93,6 +93,11 @@ public class Main {
                 validateNumArgs(args, 2);
                 Repository.addRemote(args[1], args[2]);
                 break;
+            case "rm-remote":
+                isInitialized();
+                validateNumArgs(args, 1);
+                Repository.rmRemote(args[1]);
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
                 break;

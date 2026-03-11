@@ -40,5 +40,16 @@ public class Remote implements Serializable {
         remote.put(name, path);
         save();
     }
+
+    //remove the remote
+    public void remove(String name) {
+        remote.remove(name);
+        save();
+    }
+
+    //get the path of the remote
+    public String get(String name) {
+        return remote.get(name);
+    }
 }
 

@@ -453,4 +453,16 @@ public class Repository {
         path = Utils.normalizePath(path);
         remote.put(name, path);
     }
+
+    /**
+     * rm-remote [remote name]
+     * @param name Remove information associated with the given remote name.
+     */
+    public static void rmRemote(String name) {
+        Remote remote = Remote.getRemote();
+        if (!remote.contains(name)) {
+            Utils.exitWithError("A remote with that name does not exist.");
+        }
+        remote.remove(name);
+    }
 }
