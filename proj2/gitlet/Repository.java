@@ -41,6 +41,7 @@ public class Repository {
      *    |---branchs  在Branch类中实现
      *    |---stage    在Stage类中实现
      *    |---HEAD      在HEAD中实现
+     *    |---remote     在Remote类中实现
      *
      * 初始commit
      * HEAD & branch初始化
@@ -63,6 +64,7 @@ public class Repository {
         Branch branch = new Branch();
         Stage stage = new Stage();
         Commit initcommit = new Commit();
+        Remote remote = new Remote();
         branch.put(head.getCurBranch(), initcommit.getID());
         initcommit.save();
     }
@@ -436,5 +438,19 @@ public class Repository {
         if (conflict) {
             Utils.exitWithError("Encountered a merge conflict.");
         }
+    }
+
+    /**
+     * java gitlet.Main add-remote [remote name] [name of remote directory]/.gitlet
+     * @param name remote name
+     * @param path path of the remote gitlet package
+     */
+    public static void addRemote(String name, String path) {
+        Remote remote = Remote.getRemote();
+        if (remote.contains(name)) {
+            Utils.exitWithError("A remote with that name already exists.");
+        }
+        path = Utils.normalizePath(path);
+        remote.put(name, path);
     }
 }

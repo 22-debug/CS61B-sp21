@@ -88,6 +88,11 @@ public class Main {
                 validateNumArgs(args, 1);
                 Repository.merge(args[1]);
                 break;
+            case "add-remote":
+                isInitialized();
+                validateNumArgs(args, 2);
+                Repository.addRemote(args[1], args[2]);
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
                 break;

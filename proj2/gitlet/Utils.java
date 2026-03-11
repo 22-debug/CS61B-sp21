@@ -243,4 +243,9 @@ class Utils {
         }
         System.exit(0);
     }
+
+    //change the format of the given path
+    public static String normalizePath(String path) {
+        return path.replace("/", File.separator);
+    }
 }
