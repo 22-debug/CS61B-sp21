@@ -4,9 +4,7 @@ import java.io.File;
 import static gitlet.Utils.*;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /** Represents a gitlet repository.
@@ -38,7 +36,7 @@ public class Repository {
      * .gitlet/
      *    |---blobs/
      *    |---commits/
-     *    |---branchs  在Branch类中实现
+     *    |---branches  在Branch类中实现
      *    |---stage    在Stage类中实现
      *    |---HEAD      在HEAD中实现
      *    |---remote     在Remote类中实现
@@ -464,5 +462,66 @@ public class Repository {
             Utils.exitWithError("A remote with that name does not exist.");
         }
         remote.remove(name);
+    }
+
+    /**
+     * push [remote name] [remote branch name]
+     * @param remoteName Attempts to append the current branch’s commits
+     * @param branchName to the end of the given branch at the given remote.
+     */
+    public static void push(String remoteName, String branchName) {
+        Remote remote = Remote.getRemote();
+        String remoteDir = remote.get(remoteName);
+        if (!new File(remoteDir).isDirectory()) {
+            exitWithError("Remote directory not found.");
+        }
+        //获取远程仓库储存的Branch类
+        File remoteBranchDir = join(remoteDir, "branches");
+        Branch remoteBranch = readObject(remoteBranchDir, Branch.class);
+        if (!remoteBranch.containsBranch(branchName)) {
+            exitWithError("Branch name ont found in the remote directory");
+        }
+        File remoteCommitDir = join(remoteDir, "commits");
+        File remoteBlobDir = join(remoteDir, "blobs");
+        //static 只能获取当前的
+        Commit headCommit = Branch.getHeadCommit();
+        //获取ID（动态方法） -> 文件名 -> 获取远程Commit类
+        String remoteHeadID = remoteBranch.getCommitID(branchName);
+        //File remoteHeadCommitFile = join(remoteCommitDir, remoteHeadID);
+        //Commit remoteHeadCommit = readObject(remoteHeadCommitFile, Commit.class);
+        if (!headCommit.collectAllAncestors().contains(remoteHeadID)) {
+            exitWithError("Please pull down remote changes before pushing.");
+        }
+
+        //复制本地有但远程没有的 commits 和 blobs
+        //深度优先遍历
+        Stack<String> commitStack = new Stack<>();
+        commitStack.push(headCommit.getID());
+        Set<String> visited = new HashSet<>();
+        while (!commitStack.isEmpty()) {
+            String commitID = commitStack.pop();
+            if (commitID == null || visited.contains(commitID)) {
+                continue; //跳过处理下一个
+            }
+            visited.add(commitID);
+            if (commitID.equals(remoteHeadID)) {
+                continue; //不用处理其父节点
+            }
+            Commit commitToCopy = Commit.getCommitByID(commitID);
+            File localCommitFile = join(Repository.COMMITS_DIR, commitID);
+            copyObject(localCommitFile, remoteCommitDir);
+            for (String blobID : commitToCopy.getBlobs().values()) {
+                File localBlobFile = join(Blob.BLOBS_DIR, blobID);
+                copyObject(localBlobFile, remoteBlobDir);
+            }
+            if (commitToCopy.getFirstParentCommitID() != null) {
+                commitStack.push(commitToCopy.getFirstParentCommitID());
+            }
+            if (commitToCopy.getSecondParentCommitID() != null) {
+                commitStack.push(commitToCopy.getSecondParentCommitID());
+            }
+        }
+        remoteBranch.putRemotely(branchName, headCommit.getID());
+        writeObject(remoteBranchDir, remoteBranch); //代替保存
     }
 }

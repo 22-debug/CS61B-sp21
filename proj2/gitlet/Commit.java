@@ -169,9 +169,15 @@ public class Commit implements Serializable {
     public Commit getFirstParentCommit() {
         return getCommitByID(parent);
     }
+    public String getFirstParentCommitID() {
+        return parent;
+    }
     //获取当前提交的第二父提交
     public Commit getSecondParentCommit() {
         return getCommitByID(secondParent);
+    }
+    public String getSecondParentCommitID() {
+        return secondParent;
     }
 
     //输出提交的log

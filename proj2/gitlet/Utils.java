@@ -10,8 +10,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -247,5 +249,17 @@ class Utils {
     //change the format of the given path
     public static String normalizePath(String path) {
         return path.replace("/", File.separator);
+    }
+
+    //把f辅助到目录Dir下
+    public static void copyObject(File f, File Dir) {
+        try {
+            Path sourcePath = f.toPath();
+            //.resolve(f.getName())将源文件名追加到目标目录上
+            Path targetPath = Dir.toPath().resolve(f.getName());
+            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING); //覆盖已存在文件
+        } catch (IOException e) {
+            throw new RuntimeException(e.toString());
+        }
     }
 }

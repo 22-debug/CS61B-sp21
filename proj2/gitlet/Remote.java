@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import static gitlet.Utils.join;
 
 public class Remote implements Serializable {
+    //本地另一个位置的.gitlet仓库
     static File DIR = join(Repository.GITLET_DIR, "remote");
     //remote name -> its path
     private TreeMap<String, String> remote;

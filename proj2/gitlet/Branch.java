@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class Branch implements Serializable {
-    public static final File BRANCH_DIR = Utils.join(Repository.GITLET_DIR, "branchs");
+    public static final File BRANCH_DIR = Utils.join(Repository.GITLET_DIR, "branches");
     //分支名-->分支 **最新** Commit的ID 相当于实现了HEAD功能，而HEAD只需要记录当前分支
     private TreeMap<String, String> branches;
 
@@ -80,5 +80,10 @@ public class Branch implements Serializable {
     public void remove(String branch) {
         branches.remove(branch);
         save();
+    }
+
+    public void putRemotely(String branchName, String id) {
+        branches.put(branchName, id);
+        //不保存（保存默认在本地）
     }
 }
