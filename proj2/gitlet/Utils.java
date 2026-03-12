@@ -252,11 +252,11 @@ class Utils {
     }
 
     //把f辅助到目录Dir下
-    public static void copyObject(File f, File Dir) {
+    public static void copyObject(File f, File dir) {
         try {
             Path sourcePath = f.toPath();
             //.resolve(f.getName())将源文件名追加到目标目录上
-            Path targetPath = Dir.toPath().resolve(f.getName());
+            Path targetPath = dir.toPath().resolve(f.getName());
             Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING); //覆盖已存在文件
         } catch (IOException e) {
             throw new RuntimeException(e.toString());
