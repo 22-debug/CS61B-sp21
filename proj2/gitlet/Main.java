@@ -103,6 +103,16 @@ public class Main {
                 validateNumArgs(args, 2);
                 Repository.push(args[1], args[2]);
                 break;
+            case "fetch":
+                isInitialized();
+                validateNumArgs(args, 2);
+                Repository.fetch(args[1], args[2]);
+                break;
+            case "pull":
+                isInitialized();
+                validateNumArgs(args, 2);
+                Repository.pull(args[1], args[2]);
+                break;
             default:
                 Utils.exitWithError("No command with that name exists.");
                 break;

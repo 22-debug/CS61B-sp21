@@ -524,4 +524,81 @@ public class Repository {
         remoteBranch.putRemotely(branchName, headCommit.getID());
         writeObject(remoteBranchDir, remoteBranch); //代替保存
     }
+
+    /**
+     * fetch [remote name] [remote branch name]
+     * @param remoteName the name of the remote Gitlet repository
+     * @param branchName the given branch in the remote repository
+     * Brings down commits from the remote Gitlet repository into the local Gitlet repository.
+     * Basically, this copies all commits and blobs from the given branch in the remote repository
+     * (that are not already in the current repository) into
+     * a branch named [remote name]/[remote branch name] in the local .gitlet (just as in real Git),
+     * changing [remote name]/[remote branch name] to point to the head commit
+     * (thus copying the contents of the branch from the remote repository to the current one).
+     * This branch is created in the local repository if it did not previously exist.
+     */
+    public static void fetch(String remoteName, String branchName) {
+        Remote remote = Remote.getRemote();
+        String  remoteDir = remote.get(remoteName);
+        if (!new File(remoteDir).isDirectory()) {
+            exitWithError("Remote directory not found.");
+        }
+        File remoteBranchDir = join(remoteDir, "branches");
+        Branch remoteBranch = readObject(remoteBranchDir, Branch.class);
+        if (!remoteBranch.containsBranch(branchName)) {
+            exitWithError("That remote does not have that branch.");
+        }
+
+        File remoteCommitsDir = join(remoteDir, "commits");
+        File remoteBlobsDir = join(remoteDir, "blobs");
+        String remoteHeadID = remoteBranch.getCommitID(branchName);
+        //File remoteHeadCommitFile = join(remoteCommitsDir, remoteHeadID);
+        //Commit rmeoteHeadCommit = readObject(remoteHeadCommitFile, Commit.class);
+
+        Stack<String> commitStack = new Stack<>();
+        commitStack.push(remoteHeadID);
+        Set<String> visited = new HashSet<>();
+        while (!commitStack.isEmpty()) {
+            String commitID = commitStack.pop();
+            if (commitID == null || visited.contains(commitID)) {
+                continue;
+            }
+            visited.add(commitID);
+            File localCommitFile = join(Repository.COMMITS_DIR, commitID);
+            if (localCommitFile.exists()) {
+                continue;
+            }
+            File remoteCommitFile = join(remoteCommitsDir, commitID);
+            Commit commitToCopy = readObject(remoteCommitFile, Commit.class);
+            copyObject(remoteCommitFile, Repository.COMMITS_DIR);
+            for (String blobID : commitToCopy.getBlobs().values()) {
+                File localBlobFile = join(Repository.BLOBS_DIR, blobID);
+                if (!localBlobFile.exists()) {
+                    File remoteBlobFile = join(remoteBlobsDir, blobID);
+                    copyObject(remoteBlobFile, Repository.BLOBS_DIR);
+                }
+            }
+
+            if (commitToCopy.getFirstParentCommitID() != null) {
+                commitStack.push(commitToCopy.getFirstParentCommitID());
+            }
+            if (commitToCopy.getSecondParentCommitID() != null) {
+                commitStack.push(commitToCopy.getSecondParentCommitID());
+            }
+        }
+
+        String localRemoteBranchName = remoteName + "/" + branchName;
+        Branch localBranch = Branch.getBranches();
+        localBranch.put(localRemoteBranchName, remoteHeadID);
+    }
+
+    /**
+     * pull [remote name] [remote branch name]
+     * @param remoteName equal to fetch
+     * @param branchName equal to fetch
+     */
+    public static void pull(String remoteName, String branchName) {
+        fetch(remoteName, branchName);
+        merge(remoteName + "/" + branchName);
+    }
 }
